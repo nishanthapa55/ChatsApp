@@ -1,17 +1,28 @@
 import React, { useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
+import ViewProfileModal from './ViewProfileModal';
 
 // Helper to get full image URL
 const getAvatarUrl = (avatarPath, seed) => {
     if (avatarPath) {
         return `http://localhost:5000${avatarPath}`;
     }
-    // Return a consistent placeholder avatar based on a seed (like username or ID)
     return `https://api.dicebear.com/7.x/initials/svg?seed=${seed}`;
 };
 
-const UserList = ({ users, groups, onSelectChat, selectedChat, logout, onlineUsers, unreadCounts, onOpenCreateGroupModal, onOpenProfileModal }) => {
+const UserList = ({
+    users,
+    groups,
+    onSelectChat,
+    selectedChat,
+    logout,
+    onlineUsers,
+    unreadCounts,
+    onOpenCreateGroupModal,
+    onOpenProfileModal,
+    onViewProfile
+}) => {
     const { user, updateAvatar } = useAuth();
     const avatarInputRef = useRef(null);
 
@@ -79,7 +90,15 @@ const UserList = ({ users, groups, onSelectChat, selectedChat, logout, onlineUse
                                         {chatUser.username}
                                         {isOnline && <span className="online-indicator"></span>}
                                     </span>
-                                    {unreadCount > 0 && <span className="unread-badge">{unreadCount}</span>}
+                                    <div className="user-item-controls">
+                                        {unreadCount > 0 && <span className="unread-badge">{unreadCount}</span>}
+                                        <button className="view-profile-btn" title="View Profile" onClick={(e) => {
+                                            e.stopPropagation(); // Prevents selecting the chat
+                                            onViewProfile(chatUser);
+                                        }}>
+                                            ℹ️
+                                        </button>
+                                    </div>
                                 </li>
                             );
                         })}

@@ -477,3 +477,81 @@ input:checked + .slider:before { transform: translateX(18px); }
     background-color: var(--hover-bg);
     cursor: not-allowed;
 }
+
+
+.view-profile-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    margin-left: auto;
+    padding: 5px;
+    display: none; /* Hide by default */
+}
+
+.user-list-item:hover .view-profile-btn {
+    display: block; /* Show on hover */
+}
+
+/* Profile Modal Styles */
+.modal-content.profile-modal {
+    padding: 0;
+}
+.modal-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-color-secondary);
+    cursor: pointer;
+}
+.profile-modal-header {
+    text-align: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+.profile-modal-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+.profile-modal-header h2 {
+    margin: 0;
+    color: var(--text-color);
+}
+.profile-modal-body {
+    padding: 20px;
+}
+.profile-field {
+    margin-bottom: 15px;
+}
+.profile-field strong {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-color-secondary);
+    margin-bottom: 4px;
+}
+.profile-field span {
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+.user-list-item {
+    gap: 10px; /* Adds space between elements */
+}
+
+.username-wrapper {
+    flex-grow: 1;
+    gap: 8px; /* Keeps space between username and online dot */
+}
+
+.user-item-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}

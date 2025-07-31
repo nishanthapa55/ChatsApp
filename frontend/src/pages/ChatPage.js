@@ -7,6 +7,7 @@ import Lightbox from '../components/Lightbox';
 import CreateGroupModal from '../components/CreateGroupModal';
 import api from '../services/api';
 import ProfileModal from '../components/ProfileModal'; 
+import ViewProfileModal from '../components/ViewProfileModal';
 
 const ChatPage = () => {
     const { user, logout, updateAvatar } = useAuth();
@@ -23,6 +24,7 @@ const ChatPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [replyingTo, setReplyingTo] = useState(null);
+    const [viewingProfile, setViewingProfile] = useState(null);
     const socketRef = useRef();
     
     const selectedChatRef = useRef(selectedChat);
@@ -50,10 +52,22 @@ const ChatPage = () => {
         socketRef.current.on('connect', () => console.log('Connected to socket server'));
         socketRef.current.on('onlineUsers', (users) => setOnlineUsers(users));
 
+        socketRef.current.on('profileUpdated', (updatedUser) => {
+            setUsers(prevUsers => 
+                prevUsers.map(u => u._id === updatedUser._id ? { ...u, ...updatedUser } : u)
+            );
+            const currentChat = selectedChatRef.current;
+            if (currentChat?._id === updatedUser._id) {
+                setSelectedChat(prev => ({ ...prev, ...updatedUser }));
+            }
+        });
+
         socketRef.current.on('newMessage', (message) => {
             const currentChat = selectedChatRef.current;
             if (currentChat?.type === 'user' && (message.sender._id === currentChat?._id || message.receiver === currentChat?._id)) {
                 setMessages(prev => [...prev, message]);
+            } else {
+                setUnreadCounts(prev => ({ ...prev, [message.sender._id]: (prev[message.sender._id] || 0) + 1 }));
             }
         });
 
@@ -61,6 +75,8 @@ const ChatPage = () => {
             const currentChat = selectedChatRef.current;
             if (currentChat?.type === 'group' && message.group === currentChat?._id) {
                 setMessages(prev => [...prev, message]);
+            } else {
+                setUnreadCounts(prev => ({ ...prev, [message.group]: (prev[message.group] || 0) + 1 }));
             }
         });
         
@@ -177,6 +193,8 @@ const ChatPage = () => {
                 unreadCounts={unreadCounts}
                 onOpenCreateGroupModal={() => setIsModalOpen(true)}
                 onOpenProfileModal={() => setIsProfileModalOpen(true)}
+                onViewProfile={setViewingProfile}
+                updateAvatar={updateAvatar}
             />
             <ChatBox
                 selectedChat={selectedChat}
@@ -205,6 +223,10 @@ const ChatPage = () => {
             <ProfileModal 
                 isOpen={isProfileModalOpen}
                 onClose={() => setIsProfileModalOpen(false)}
+            />
+            <ViewProfileModal 
+                user={viewingProfile}
+                onClose={() => setViewingProfile(null)}
             />
         </div>
     );

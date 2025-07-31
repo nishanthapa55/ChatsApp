@@ -50,16 +50,24 @@ exports.updateUserProfile = async (req, res) => {
             user.lastName = req.body.lastName || user.lastName;
             user.phoneNumber = req.body.phoneNumber || user.phoneNumber;
 
-            const updatedUser = await user.save();
+            const savedUser = await user.save();
 
+            const updatedUserForResponse = {
+                _id: savedUser._id,
+                username: savedUser.username,
+                email: savedUser.email,
+                avatar: savedUser.avatar,
+                firstName: savedUser.firstName,
+                lastName: savedUser.lastName,
+                phoneNumber: savedUser.phoneNumber,
+            };
+            
+            // --- This is the new line to add ---
+            req.io.emit('profileUpdated', updatedUserForResponse);
+
+            // Send full details back to the user who made the change
             res.json({
-                _id: updatedUser._id,
-                username: updatedUser.username,
-                email: updatedUser.email,
-                avatar: updatedUser.avatar,
-                firstName: updatedUser.firstName,
-                lastName: updatedUser.lastName,
-                phoneNumber: updatedUser.phoneNumber,
+                ...updatedUserForResponse,
                 token: req.headers.authorization.split(' ')[1]
             });
         } else {
