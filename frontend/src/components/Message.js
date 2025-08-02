@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
-const getAvatarUrl = (avatarPath) => {
+const getAvatarUrl = (avatarPath, seed) => {
     if (avatarPath) return `http://localhost:5000${avatarPath}`;
-    return 'https://i.pravatar.cc/150';
+    return `https://api.dicebear.com/7.x/initials/svg?seed=${seed}`;
 };
 
-const Message = ({ message, isSender, isGroupChat, onImageClick, onEdit, onDelete, onSetReply }) => {
+const Message = ({ message, isSender, isGroupChat, onImageClick, onEdit, onDelete, onSetReply, onViewProfile }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(message.content);
 
@@ -52,7 +52,8 @@ const Message = ({ message, isSender, isGroupChat, onImageClick, onEdit, onDelet
      return (
         <div className={`message-wrapper ${isSender ? 'sent' : 'received'}`}>
             {!isSender && (
-                <img src={getAvatarUrl(message.sender.avatar)} alt={message.sender.username} className="avatar-img message-avatar" />
+                <img src={getAvatarUrl(message.sender.avatar)} alt={message.sender.username} className="avatar-img message-avatar" onClick={() => onViewProfile(message.sender)}
+                    title={`View ${message.sender.username}'s profile`} />
             )}
             <div className="message">
                 {isGroupChat && !isSender && (

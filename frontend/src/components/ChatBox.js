@@ -16,7 +16,8 @@ const ChatBox = ({
     onDeleteGroup,
     socket,
     replyingTo,
-    setReplyingTo
+    setReplyingTo,
+    onViewProfile
 }) => {
     const [content, setContent] = useState('');
     const [showPicker, setShowPicker] = useState(false);
@@ -139,6 +140,7 @@ const ChatBox = ({
                         onEdit={onEditMessage}
                         onDelete={onDeleteMessage}
                         onSetReply={setReplyingTo}
+                        onViewProfile={onViewProfile}
                     />
                 ))}
                 {isGroupChat && groupTypingUsers.length > 0 && (

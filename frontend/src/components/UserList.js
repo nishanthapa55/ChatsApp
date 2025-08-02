@@ -92,12 +92,6 @@ const UserList = ({
                                     </span>
                                     <div className="user-item-controls">
                                         {unreadCount > 0 && <span className="unread-badge">{unreadCount}</span>}
-                                        <button className="view-profile-btn" title="View Profile" onClick={(e) => {
-                                            e.stopPropagation(); // Prevents selecting the chat
-                                            onViewProfile(chatUser);
-                                        }}>
-                                            ℹ️
-                                        </button>
                                     </div>
                                 </li>
                             );

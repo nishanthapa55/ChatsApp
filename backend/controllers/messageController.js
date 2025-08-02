@@ -8,14 +8,15 @@ exports.getMessages = async (req, res) => {
                 { sender: req.params.receiverId, receiver: req.user.id }
             ]
         })
-        .populate('sender', 'username avatar')
-        .populate({ // <-- Populate the replied-to message and its sender
+        .populate('sender', 'username avatar firstName lastName phoneNumber email')
+        .populate({
             path: 'replyingTo',
             populate: {
                 path: 'sender',
-                select: 'username avatar'
+                select: 'username avatar firstName lastName phoneNumber email'
             }
-        }).sort({ createdAt: 'asc' });
+        })
+        .sort({ createdAt: 'asc' });
         res.json(messages);
     } catch (error) {
         res.status(500).json({ message: 'Server Error' });

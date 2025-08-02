@@ -23,7 +23,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- middleware ---
+// Middleware to make io accessible in controllers
 app.use((req, res, next) => {
     req.io = io;
     next();
@@ -63,12 +63,10 @@ io.on('connection', async (socket) => {
     console.log(`User connected: ${socket.id}, UserID: ${currentUserId}`);
     userSocketMap[currentUserId] = socket.id;
 
-    // Join rooms for each group the user is in
     try {
         const userGroups = await Group.find({ members: { $in: [currentUserId] } });
         userGroups.forEach(group => {
             socket.join(group._id.toString());
-            console.log(`User ${currentUserId} joined group room ${group._id.toString()}`);
         });
     } catch (error) {
         console.error("Error fetching and joining user groups:", error);
@@ -76,7 +74,6 @@ io.on('connection', async (socket) => {
 
     io.emit('onlineUsers', Object.keys(userSocketMap));
 
-    // Handler for sending group messages
     socket.on('sendGroupMessage', async ({ groupId, content, type, replyingTo }) => {
         try {
             let newMessage = new GroupMessage({
@@ -87,9 +84,11 @@ io.on('connection', async (socket) => {
                 replyingTo
             });
             await newMessage.save();
-            newMessage = await newMessage.populate('sender', 'username avatar');
-            newMessage = await newMessage.populate({ path: 'replyingTo', populate: { path: 'sender', select: 'username avatar' } });
-
+            newMessage = await newMessage.populate('sender', 'username avatar firstName lastName phoneNumber email');
+            newMessage = await newMessage.populate({ 
+                path: 'replyingTo', 
+                populate: { path: 'sender', select: 'username avatar' } 
+            });
 
             io.to(groupId).emit('newGroupMessage', newMessage);
         } catch (error) {
@@ -97,23 +96,6 @@ io.on('connection', async (socket) => {
         }
     });
 
-    // --- NEW: Handlers for group typing indicators ---
-    socket.on('startTypingGroup', ({ groupId }) => {
-        // Broadcast to everyone in the group room except the sender
-        socket.to(groupId).emit('groupTyping', {
-            groupId,
-            username: socket.user.username
-        });
-    });
-
-    socket.on('stopTypingGroup', ({ groupId }) => {
-        socket.to(groupId).emit('groupStopTyping', {
-            groupId,
-            username: socket.user.username
-        });
-    });
-
-    // Handler for one-on-one messages
     socket.on('sendMessage', async ({ receiverId, content, type, replyingTo }) => {
         try {
             let newMessage = new Message({
@@ -124,9 +106,11 @@ io.on('connection', async (socket) => {
                 replyingTo
             });
             await newMessage.save();
-            newMessage = await newMessage.populate('sender', 'username avatar');
-            newMessage = await newMessage.populate({ path: 'replyingTo', populate: { path: 'sender', select: 'username avatar' } });
-
+            newMessage = await newMessage.populate('sender', 'username avatar firstName lastName phoneNumber email');
+            newMessage = await newMessage.populate({
+                path: 'replyingTo',
+                populate: { path: 'sender', select: 'username avatar' }
+            });
 
             const receiverSocketId = userSocketMap[receiverId];
             if (receiverSocketId) {
@@ -138,15 +122,19 @@ io.on('connection', async (socket) => {
         }
     });
 
-    // Handler for editing one-on-one messages
     socket.on('editMessage', async ({ messageId, newContent }) => {
         try {
-            const message = await Message.findById(messageId);
+            let message = await Message.findById(messageId);
             if (message.sender.toString() !== socket.user._id.toString()) return;
 
             message.content = newContent;
             message.isEdited = true;
-            const updatedMessage = await message.save();
+            await message.save();
+
+            // CRITICAL FIX: Repopulate the message after saving to include sender details
+            let updatedMessage = await Message.findById(message._id)
+                .populate('sender', 'username avatar firstName lastName phoneNumber email')
+                .populate({ path: 'replyingTo', populate: { path: 'sender', select: 'username avatar' } });
 
             const receiverSocketId = userSocketMap[message.receiver.toString()];
             if (receiverSocketId) {
@@ -158,11 +146,10 @@ io.on('connection', async (socket) => {
         }
     });
 
-    // Handler for deleting one-on-one messages
     socket.on('deleteMessage', async ({ messageId }) => {
         try {
             const message = await Message.findById(messageId);
-            if (message.sender.toString() !== socket.user._id.toString()) return;
+            if (!message || message.sender.toString() !== socket.user._id.toString()) return;
 
             await Message.findByIdAndDelete(messageId);
 
@@ -176,7 +163,20 @@ io.on('connection', async (socket) => {
         }
     });
 
-    // Handlers for typing indicators
+    socket.on('startTypingGroup', ({ groupId }) => {
+        socket.to(groupId).emit('groupTyping', {
+            groupId,
+            username: socket.user.username
+        });
+    });
+
+    socket.on('stopTypingGroup', ({ groupId }) => {
+        socket.to(groupId).emit('groupStopTyping', {
+            groupId,
+            username: socket.user.username
+        });
+    });
+
     socket.on('startTyping', ({ receiverId }) => {
         const receiverSocketId = userSocketMap[receiverId];
         if (receiverSocketId) {

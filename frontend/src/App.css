@@ -353,6 +353,7 @@ input:checked + .slider:before { transform: translateX(18px); }
     width: 32px;
     height: 32px;
     align-self: flex-end; /* Align to the bottom of the message */
+    cursor: pointer; /* Make it clickable */
 }
 
 .message-wrapper.received {
@@ -476,17 +477,6 @@ input:checked + .slider:before { transform: translateX(18px); }
 .modal-content input:disabled {
     background-color: var(--hover-bg);
     cursor: not-allowed;
-}
-
-
-.view-profile-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.1rem;
-    margin-left: auto;
-    padding: 5px;
-    display: none; /* Hide by default */
 }
 
 .user-list-item:hover .view-profile-btn {

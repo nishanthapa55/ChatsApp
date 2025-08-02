@@ -193,7 +193,6 @@ const ChatPage = () => {
                 unreadCounts={unreadCounts}
                 onOpenCreateGroupModal={() => setIsModalOpen(true)}
                 onOpenProfileModal={() => setIsProfileModalOpen(true)}
-                onViewProfile={setViewingProfile}
                 updateAvatar={updateAvatar}
             />
             <ChatBox
@@ -210,6 +209,7 @@ const ChatPage = () => {
                 replyingTo={replyingTo}
                 setReplyingTo={setReplyingTo}
                 onDeleteGroup={handleDeleteGroup}
+                onViewProfile={setViewingProfile}
             />
             <CreateGroupModal 
                 isOpen={isModalOpen}
