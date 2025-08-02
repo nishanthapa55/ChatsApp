@@ -4,7 +4,12 @@ const { Server } = require("socket.io");
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const passport = require('passport');
+const session = require('express-session');
 require('dotenv').config();
+
+// Passport config
+require('./config/passport')(passport);
 
 // Route Imports
 const authRoutes = require('./routes/authRoutes');
@@ -22,6 +27,15 @@ const socketAuth = require('./middleware/socketAuth');
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(session({
+    secret: 'securedSecretKey123', 
+    resave: false,
+    saveUninitialized: false
+}));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Middleware to make io accessible in controllers
 app.use((req, res, next) => {

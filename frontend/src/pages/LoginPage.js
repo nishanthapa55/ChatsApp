@@ -32,6 +32,10 @@ const LoginPage = () => {
                     required
                 />
                 <button type="submit">Login</button>
+                <div className="divider">OR</div>
+                <a href="http://localhost:5000/api/auth/google" className="google-btn">
+                    Login with Google
+                </a>
                 <p>
                     Don't have an account? <Link to="/register">Register</Link>
                 </p>

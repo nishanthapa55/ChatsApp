@@ -40,6 +40,10 @@ exports.loginUser = async (req, res) => {
                 _id: user._id,
                 username: user.username, // Still return the username for display
                 email: user.email,
+                avatar: user.avatar,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                phoneNumber: user.phoneNumber,
                 token: generateToken(user._id),
             });
         } else {
@@ -48,4 +52,9 @@ exports.loginUser = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+};
+
+exports.getMe = async (req, res) => {
+    // req.user is already available thanks to our 'protect' middleware
+    res.status(200).json(req.user);
 };

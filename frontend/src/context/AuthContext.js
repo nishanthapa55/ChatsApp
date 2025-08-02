@@ -11,11 +11,33 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
-        if (storedUser) {
+
+        // --- NEW LOGIC TO HANDLE GOOGLE REDIRECT ---
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+
+        if (token) {
+            // If a token is in the URL, use it to fetch the user profile
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            api.get('/auth/me').then(res => {
+                const userData = { ...res.data, token };
+                localStorage.setItem('user', JSON.stringify(userData));
+                setUser(userData);
+                navigate('/chat');
+            }).catch(err => {
+                console.error("Failed to fetch user with token", err);
+                localStorage.removeItem('user');
+            }).finally(() => {
+                setLoading(false);
+            });
+
+        } else if (storedUser) {
             setUser(JSON.parse(storedUser));
+            setLoading(false);
+        } else {
+            setLoading(false);
         }
-        setLoading(false);
-    }, []);
+    }, [navigate]);
 
     const login = async (email, password) => {
         try {
