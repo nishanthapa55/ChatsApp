@@ -188,7 +188,7 @@ const ChatPage = () => {
     };
 
     return (
-        <div className="chat-container">
+        <div className={`chat-container ${selectedChat ? 'chat-view-active' : ''}`}>
             <UserList 
                 users={users}
                 groups={groups}
@@ -216,6 +216,7 @@ const ChatPage = () => {
                 setReplyingTo={setReplyingTo}
                 onDeleteGroup={handleDeleteGroup}
                 onViewProfile={setViewingProfile}
+                setSelectedChat={setSelectedChat}
             />
             <CreateGroupModal 
                 isOpen={isModalOpen}

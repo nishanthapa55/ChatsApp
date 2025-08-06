@@ -3,6 +3,14 @@ import Picker from 'emoji-picker-react';
 import Message from './Message';
 import api from '../services/api';
 
+const getAvatarUrl = (avatarPath, seed) => {
+    if (avatarPath) {
+        return `http://localhost:5000${avatarPath}`;
+    }
+    // A placeholder for groups or users without a custom avatar
+    return `https://api.dicebear.com/7.x/initials/svg?seed=${seed}`;
+};
+
 const ChatBox = ({
     selectedChat,
     messages,
@@ -17,6 +25,7 @@ const ChatBox = ({
     socket,
     replyingTo,
     setReplyingTo,
+    setSelectedChat,
     onViewProfile
 }) => {
     const [content, setContent] = useState('');
@@ -108,26 +117,38 @@ const ChatBox = ({
     }
 
     return (
-        <div className="chat-box">
+         <div className="chat-box">
             <div className="chat-header">
-                <h2>{selectedChat.name || selectedChat.username}</h2>
-                {isAdmin && (
-                    <div className="kebab-menu" ref={menuRef}>
-                        <button className="kebab-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                            &#8942;
-                        </button>
-                        {isMenuOpen && (
-                            <div className="kebab-dropdown">
-                                <button onClick={() => {
-                                    onDeleteGroup(selectedChat._id);
-                                    setIsMenuOpen(false);
-                                }}>
-                                    Delete Group
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )}
+                <div className="chat-header-left">
+                    <button className="back-btn" onClick={() => setSelectedChat(null)}>
+                        &larr;
+                    </button>
+                    <img 
+                        src={getAvatarUrl(selectedChat.avatar, selectedChat.name || selectedChat.username)} 
+                        alt={selectedChat.name || selectedChat.username} 
+                        className="avatar-img header-avatar" 
+                    />
+                    <h2>{selectedChat.name || selectedChat.username}</h2>
+                </div>
+                <div className="header-actions">
+                    {isAdmin && (
+                        <div className="kebab-menu" ref={menuRef}>
+                            <button className="kebab-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                                &#8942;
+                            </button>
+                            {isMenuOpen && (
+                                <div className="kebab-dropdown">
+                                    <button onClick={() => {
+                                        onDeleteGroup(selectedChat._id);
+                                        setIsMenuOpen(false);
+                                    }}>
+                                        Delete Group
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
             <div className="messages-area">
                 {messages.map((msg) => (

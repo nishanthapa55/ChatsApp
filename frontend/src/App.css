@@ -562,3 +562,94 @@ input:checked + .slider:before { transform: translateX(18px); }
     font-weight: bold;
     margin: 0 auto 1rem;
 }
+
+/* =============================================== */
+/* ========== CHAT HEADER STYLES ================ */
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+}
+
+.back-btn {
+    display: none; /* Hidden on desktop */
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-color);
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+
+/* =============================================== */
+/* ========== RESPONSIVE STYLES (MOBILE) ========= */
+/* =============================================== */
+
+@media (max-width: 768px) {
+    .chat-container {
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    .user-list-container,
+    .chat-box {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    /* Sidebar (Chat List) */
+    .user-list-container {
+        left: 0;
+        transform: translateX(0);
+        z-index: 2;
+    }
+
+    /* Main Chat Window */
+    .chat-box {
+        left: 100%; /* Start off-screen to the right */
+        transform: translateX(0);
+        z-index: 1;
+        border-left: none;
+    }
+    
+    /* When a chat is selected, slide the sidebar out and the chat window in */
+    .chat-container.chat-view-active .user-list-container {
+        transform: translateX(-100%);
+    }
+
+    .chat-container.chat-view-active .chat-box {
+        transform: translateX(-100%);
+    }
+
+    /* Show the back button on mobile */
+    .back-btn {
+        display: block;
+    }
+
+    /* Make modals take up more screen width */
+    .modal-content {
+        width: 90vw;
+    }
+
+    .message-actions {
+        /* Hide hover actions on touch devices for a cleaner look */
+        display: none;
+    }
+}
