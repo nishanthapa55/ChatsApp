@@ -39,15 +39,23 @@ export const AuthProvider = ({ children }) => {
         }
     }, [navigate]);
 
-    const login = async (email, password) => {
+     const login = async (email, password) => {
         try {
             const { data } = await api.post('/auth/login', { email, password });
             localStorage.setItem('user', JSON.stringify(data));
             setUser(data);
             navigate('/chat');
         } catch (error) {
-            console.error('Login failed', error.response.data.message);
-            alert('Login failed: ' + error.response.data.message);
+            // This is the updated, safer error handling
+            if (error.response) {
+                // The server responded with an error status code (e.g. 401 for wrong password)
+                console.error('Login failed:', error.response.data.message);
+                alert('Login failed: ' + error.response.data.message);
+            } else {
+                // A network error occurred (e.g. the server is down)
+                console.error('Login failed: An unexpected error occurred', error);
+                alert('Login failed: Could not connect to the server. Please make sure it is running.');
+            }
         }
     };
 

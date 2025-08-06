@@ -6,6 +6,7 @@ const cors = require('cors');
 const path = require('path');
 const passport = require('passport');
 const session = require('express-session');
+const webpush = require('web-push');
 require('dotenv').config();
 
 // Passport config
@@ -17,12 +18,25 @@ const userRoutes = require('./routes/userRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const groupRoutes = require('./routes/groupRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 // Model Imports
+const User = require('./models/User');
 const Message = require('./models/Message');
 const Group = require('./models/Group');
 const GroupMessage = require('./models/GroupMessage');
 const socketAuth = require('./middleware/socketAuth');
+
+// VAPID keys for web push notifications
+const vapidKeys = {
+    publicKey: process.env.VAPID_PUBLIC_KEY,
+    privateKey: process.env.VAPID_PRIVATE_KEY
+};
+webpush.setVapidDetails(
+    'mailto:nishanthapa55@gmail.com',
+    vapidKeys.publicKey,
+    vapidKeys.privateKey
+);
 
 const app = express();
 app.use(cors());
@@ -49,6 +63,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/groups', groupRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Serve uploaded files statically
 const dirname = path.resolve();
@@ -88,28 +103,6 @@ io.on('connection', async (socket) => {
 
     io.emit('onlineUsers', Object.keys(userSocketMap));
 
-    socket.on('sendGroupMessage', async ({ groupId, content, type, replyingTo }) => {
-        try {
-            let newMessage = new GroupMessage({
-                group: groupId,
-                sender: socket.user._id,
-                content,
-                type,
-                replyingTo
-            });
-            await newMessage.save();
-            newMessage = await newMessage.populate('sender', 'username avatar firstName lastName phoneNumber email');
-            newMessage = await newMessage.populate({ 
-                path: 'replyingTo', 
-                populate: { path: 'sender', select: 'username avatar' } 
-            });
-
-            io.to(groupId).emit('newGroupMessage', newMessage);
-        } catch (error) {
-            console.error('Error sending group message:', error);
-        }
-    });
-
     socket.on('sendMessage', async ({ receiverId, content, type, replyingTo }) => {
         try {
             let newMessage = new Message({
@@ -129,10 +122,55 @@ io.on('connection', async (socket) => {
             const receiverSocketId = userSocketMap[receiverId];
             if (receiverSocketId) {
                 io.to(receiverSocketId).emit('newMessage', newMessage);
+            } else {
+                const recipient = await User.findById(receiverId);
+                if (recipient && recipient.pushSubscription) {
+                    const payload = JSON.stringify({
+                        title: `New message from ${socket.user.username}`,
+                        body: content,
+                        icon: `http://localhost:5000${socket.user.avatar}`
+                    });
+                    webpush.sendNotification(recipient.pushSubscription, payload).catch(err => console.error("Error sending notification", err));
+                }
             }
             socket.emit('newMessage', newMessage);
         } catch (error) {
             console.error('Error sending message:', error);
+        }
+    });
+
+    socket.on('sendGroupMessage', async ({ groupId, content, type, replyingTo }) => {
+        try {
+            let newMessage = new GroupMessage({
+                group: groupId,
+                sender: socket.user._id,
+                content,
+                type,
+                replyingTo
+            });
+            await newMessage.save();
+            newMessage = await newMessage.populate('sender', 'username avatar firstName lastName phoneNumber email');
+            newMessage = await newMessage.populate({ 
+                path: 'replyingTo', 
+                populate: { path: 'sender', select: 'username avatar' } 
+            });
+
+            io.to(groupId).emit('newGroupMessage', newMessage);
+            const group = await Group.findById(groupId).populate('members');
+            group.members.forEach(member => {
+                const memberId = member._id.toString();
+                // Send to members who are NOT the sender AND are offline
+                if (memberId !== socket.user._id.toString() && !userSocketMap[memberId] && member.pushSubscription) {
+                     const payload = JSON.stringify({
+                        title: `New message in ${group.name}`,
+                        body: `${socket.user.username}: ${content}`,
+                        icon: `http://localhost:5000${socket.user.avatar}`
+                    });
+                    webpush.sendNotification(member.pushSubscription, payload).catch(err => console.error("Error sending notification", err));
+                }
+            });
+        } catch (error) {
+            console.error('Error sending group message:', error);
         }
     });
 

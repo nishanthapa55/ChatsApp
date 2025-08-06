@@ -8,11 +8,17 @@ import CreateGroupModal from '../components/CreateGroupModal';
 import api from '../services/api';
 import ProfileModal from '../components/ProfileModal'; 
 import ViewProfileModal from '../components/ViewProfileModal';
+import { initializePushNotifications } from '../push-notifications';
 
 const ChatPage = () => {
     const { user, logout, updateAvatar } = useAuth();
     
     const [users, setUsers] = useState([]);
+
+    useEffect(() => {
+        initializePushNotifications();
+    }, []);
+
     const [groups, setGroups] = useState([]);
     const [selectedChat, setSelectedChat] = useState(null);
     const [messages, setMessages] = useState([]);

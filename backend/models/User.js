@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
     firstName: { type: String, default: '' },
     lastName: { type: String, default: '' },
     phoneNumber: { type: String, default: '' },
+    pushSubscription: { type: Object},
     googleId: { type: String}
 }, { timestamps: true });
 
