@@ -14,6 +14,7 @@ const ChatPage = () => {
     const { user, logout, updateAvatar } = useAuth();
     
     const [users, setUsers] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         initializePushNotifications();
@@ -40,6 +41,7 @@ const ChatPage = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            setIsLoading(true);
             try {
                 const [usersRes, groupsRes] = await Promise.all([
                     api.get('/users'),
@@ -48,6 +50,7 @@ const ChatPage = () => {
                 setUsers(usersRes.data);
                 setGroups(groupsRes.data);
             } catch (error) { console.error("Failed to fetch data", error); }
+            setIsLoading(false);
         };
         fetchData();
 
@@ -200,6 +203,7 @@ const ChatPage = () => {
                 onOpenCreateGroupModal={() => setIsModalOpen(true)}
                 onOpenProfileModal={() => setIsProfileModalOpen(true)}
                 updateAvatar={updateAvatar}
+                isLoading={isLoading}
             />
             <ChatBox
                 selectedChat={selectedChat}
