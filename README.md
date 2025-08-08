@@ -8,7 +8,7 @@ A full-stack, real-time chat application built with the MERN stack (MongoDB, Exp
 
 ## Screenshot
 
-![Chat App Screenshot](https://i.imgur.com/a/unZUvjm.png)
+![Chat App Screenshot](https://i.imgur.com/UEbIfC0.png, https://i.imgur.com/0XBeLB2.png, https://i.imgur.com/pIosu14.png, https://i.imgur.com/NkIEk4e.png, https://i.imgur.com/OwosCCX.png, https://i.imgur.com/uZqDz7C.png, https://i.imgur.com/gpcJO0A.png, https://i.imgur.com/JgGLbY2.png)
 
 ## Features
 
