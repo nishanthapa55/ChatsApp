@@ -52,5 +52,5 @@ To run this project on your local machine, follow these steps:
 
 ### 1. Clone the repository
 ```bash
-git clone [https://github.com/nishanthapa55/ChatsApp.git](https://github.com/nishanthapa55/ChatsApp.git)
+git clone https://github.com/nishanthapa55/ChatsApp.git
 cd ChatsApp
