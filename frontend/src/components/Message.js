@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-
-const getAvatarUrl = (avatarPath, seed) => {
-    if (avatarPath) return `http://localhost:5000${avatarPath}`;
-    return `https://api.dicebear.com/7.x/initials/svg?seed=${seed}`;
-};
+import getAvatarUrl from '../utils/getAvatarUrl';
 
 const Message = ({ message, isSender, isGroupChat, onImageClick, onEdit, onDelete, onSetReply, onViewProfile }) => {
     const [isEditing, setIsEditing] = useState(false);

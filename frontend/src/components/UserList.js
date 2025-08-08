@@ -2,14 +2,7 @@ import React, { useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
 import ViewProfileModal from './ViewProfileModal';
-
-// Helper to get full image URL
-const getAvatarUrl = (avatarPath, seed) => {
-    if (avatarPath) {
-        return `http://localhost:5000${avatarPath}`;
-    }
-    return `https://api.dicebear.com/7.x/initials/svg?seed=${seed}`;
-};
+import getAvatarUrl from '../utils/getAvatarUrl';
 
 const UserList = ({
     users,

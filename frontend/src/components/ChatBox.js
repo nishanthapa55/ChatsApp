@@ -2,14 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Picker from 'emoji-picker-react';
 import Message from './Message';
 import api from '../services/api';
-
-const getAvatarUrl = (avatarPath, seed) => {
-    if (avatarPath) {
-        return `http://localhost:5000${avatarPath}`;
-    }
-    // A placeholder for groups or users without a custom avatar
-    return `https://api.dicebear.com/7.x/initials/svg?seed=${seed}`;
-};
+import getAvatarUrl from '../utils/getAvatarUrl';
 
 const ChatBox = ({
     selectedChat,
