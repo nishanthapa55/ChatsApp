@@ -4,7 +4,7 @@ A full-stack, real-time chat application built with the MERN stack (MongoDB, Exp
 
 ## Live Demo
 
-**[Click here to view the live application](chats-app-five.vercel.app)**
+**[Click here to view the live application](https://chats-app-five.vercel.app/)**
 
 ## Screenshot
 
